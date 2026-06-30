@@ -2,7 +2,8 @@ from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 from fastapi import FastAPI
-import joblib, schema
+import joblib
+from schema import SolicitudPrediccion
 
 # 1. Carga del Modelo (Lo primero al ejecutar la api)
 model = joblib.load("model/modelo_calidad_aire_rf.pkl")
@@ -18,10 +19,9 @@ def home():
 # Endpoint de Predicción
 @app.post("/predict")
 def predict(data: SolicitudPrediccion):
-    # Aquí es donde ocurre la transformación.
-    # Recibimos un objeto validado por Pydantic.
-    # 1. Convertir 'data' a un formato que Pandas entienda.
-    # 2. Aplicar el proceso de dummies y reindexar (nuestra lógica).
-    # 3. Llamar a model.predict().
-    # 4. Retornar el resultado.
+    # Recibimos un objeto validado por Pydantic
+    # 1. Convertir 'data' a un formato que Pandas entienda
+    # 2. Aplicar el proceso de dummies y reindexar
+    # 3. Llamar a model.predict()
+    # 4. Retornar el resultado
     pass
