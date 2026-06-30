@@ -1,17 +1,17 @@
 from pydantic import BaseModel, Field
 
 class SolicitudPrediccion(BaseModel):
-    # Variables Geográficas
-    Nombre_del_Departamento: str = Field(..., example="BOGOTÁ, D.C.")
-    Nombre_del_Municipio: str = Field(..., example="BOGOTÁ, D.C.")
-    Latitud: float = Field(..., example=4.65)
-    Longitud: float = Field(..., example=-74.10)
-    
-    # Variables de Configuración de la Estación
-    Variable: str = Field(..., example="PM10") # El tipo de contaminante
-    Tipo_de_Estacion: str = Field(..., example="Fija")
-    Ubicacion: str = Field(..., example="Urbana")
-    
-    # Variables Temporales
-    Año: str = Field(..., example="2026") # Se asume tipo 'str' según el info() de pandas
+
+    #Se establecen las variables necesarias para la prediccion
+    Variable: str = Field(..., example="PM10")
+    Año: str = Field(..., example="2026")
+    Nombre_del_Departamento: str = Field(..., example="ANTIOQUIA")
+    Nombre_del_Municipio: str = Field(..., example="MEDELLÍN")
+    Latitud: float = Field(..., example=6.2518)
+    Longitud: float = Field(..., example=-75.5636)
+    # Nota: 
+    # Segun el listado de columnas original y la lista de eliminacion, 
+    # variables como 'Unidades' o 'Tiempo de exposición (horas)' no fueron 
+    # eliminadas explicitamente en el código compartido. 
+    Unidades: str = Field(..., example="µg/m3")
     Tiempo_de_exposicion_horas: int = Field(..., example=24)
