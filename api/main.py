@@ -1,14 +1,20 @@
-from pydantic import BaseModel
 import pandas as pd
-import numpy as np
 from fastapi import FastAPI
-import joblib
-from schema import SolicitudPrediccion
+import joblib, json, os
+from .schema import SolicitudPrediccion
 
-# 1. Carga del Modelo (Lo primero al ejecutar la api)
-model = joblib.load("model/modelo_calidad_aire_rf.pkl")
+# Configuración de rutas (Rutas dinamicas)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Esto sube un nivel (..) desde 'api' para buscar la carpeta 'model'
+MODEL_PATH = os.path.join(BASE_DIR, '..', 'model', 'modelo_calidad_aire_rf.pkl')
+JSON_PATH = os.path.join(BASE_DIR, '..', 'model', 'columnas_modelo.json')
 
-# 2. Inicializacion de la aplicacion
+# Carga del Modelo y mapa de columnas
+model = joblib.load(MODEL_PATH)
+with open(JSON_PATH, "r") as f:
+    columnas_modelo = json.load(f)
+
+# Inicializacion de la aplicacion
 app = FastAPI()
 
 # Endpoint para verificar que la API está encendida
@@ -16,12 +22,24 @@ app = FastAPI()
 def home():
     return {"message": "API de Calidad del Aire activa"}
 
-# Endpoint de Predicción
+# Endpoint de Prediccion
 @app.post("/predict")
 def predict(data: SolicitudPrediccion):
-    # Recibimos un objeto validado por Pydantic
-    # 1. Convertir 'data' a un formato que Pandas entienda
-    # 2. Aplicar el proceso de dummies y reindexar
-    # 3. Llamar a model.predict()
-    # 4. Retornar el resultado
-    pass
+    # Convertir los datos recibidos (que son un objeto Pydantic) a un DataFrame
+    df = pd.DataFrame([data.model_dump()])
+    
+    # Aplicar get_dummies
+    df_encoded = pd.get_dummies(df)
+    
+    # reindex con la lista que cargamos en 'columnas_modelo'
+    # 'fill_value=0' es vital para que las columnas ausentes sean 0
+    df_final = df_encoded.reindex(columns=columnas_modelo, fill_value=0)
+    
+    # El modelo espera una matriz
+    resultado = model.predict(df_final)
+    
+    # Retornar el resultado
+    # Nota: model.predict devuelve un array, asi que se extrae el primer valor
+    return {"prediccion": float(resultado[0])}
+
+    #para inicializar: python -m uvicorn api.main:app --reload
