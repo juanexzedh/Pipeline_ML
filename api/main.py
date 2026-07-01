@@ -2,6 +2,7 @@ import pandas as pd
 from fastapi import FastAPI
 import joblib, json, os
 from .schema import SolicitudPrediccion
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configuración de rutas (Rutas dinamicas)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +17,14 @@ with open(JSON_PATH, "r") as f:
 
 # Inicializacion de la aplicacion
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite peticiones desde cualquier origen en desarrollo
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos (GET, POST, etc.)
+    allow_headers=["*"],  # Permite todos los encabezados
+)
 
 # Endpoint para verificar que la API está encendida
 @app.get("/")
